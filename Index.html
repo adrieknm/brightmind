@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F4F8; --surface:#FFFFFF; --ink:#1B2230; --muted:#6B7587; --line:#E5E9F1;
+  --accent:#3F5EFB; --accent-soft:#E9EDFF; --accent-ink:#2A44C8;
+  --ok:#17935F; --ok-soft:#E1F6EC; --warn:#B7791F; --warn-soft:#FFF1D2;
+  --bad:#D13F3F; --bad-soft:#FDE8E8; --info-soft:#EDF0F6;
+  --side:232px; --nav-h:64px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---- kerangka ---- */
+.app{display:flex;min-height:100vh}
+.side{width:var(--side);background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;gap:22px;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px}
+.brand b{font-size:15px;line-height:1.2}
+.brand small{display:block;color:var(--muted);font-weight:500;font-size:11px}
+#nav{display:flex;flex-direction:column;gap:4px}
+#nav button{display:flex;align-items:center;gap:12px;border:0;background:none;padding:10px 12px;border-radius:10px;color:var(--muted);font-weight:600;cursor:pointer;text-align:left}
+#nav button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#nav button:hover{background:var(--bg);color:var(--ink)}
+#nav button.on{background:var(--accent-soft);color:var(--accent-ink)}
+.side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:var(--bg)}
+.side .me div{min-width:0}
+.side .me b{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side .me small{color:var(--muted);font-size:11px}
+.wrap{margin-left:var(--side);flex:1;min-width:0}
+.top{padding:22px 28px 6px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.top h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.01em}
+.top p{margin:2px 0 0;color:var(--muted);font-size:13px}
+main{padding:14px 28px 40px;max-width:1080px}
+
+/* ---- komponen ---- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px}
+.card.flush{padding:0;overflow:hidden}
+.card h3,.sec{margin:0 0 10px;font-size:14px;font-weight:700}
+.sec{margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+.sec .n{background:var(--info-soft);color:var(--muted);border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600}
+.mut{color:var(--muted);font-size:12.5px}
+.bad{color:var(--bad)}
+label{display:block;margin:0 0 10px;font-size:12px;font-weight:600;color:var(--muted)}
+input,select{width:100%;padding:10px 12px;margin-top:5px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px;font-weight:500;color:var(--ink)}
+input:focus,select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0 12px}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:6px;border:0;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff}
+.btn:hover{background:var(--accent-ink)}
+.btn.ok{background:var(--ok)}
+.btn.ghost{background:var(--accent-soft);color:var(--accent-ink)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.55;cursor:default}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--info-soft);color:var(--muted);white-space:nowrap}
+.chip.ok,.chip.Lunas,.chip.aktif{background:var(--ok-soft);color:var(--ok)}
+.chip.warn,.chip.Sebagian,.chip.lead{background:var(--warn-soft);color:var(--warn)}
+.chip.bad,.chip.Belum{background:var(--bad-soft);color:var(--bad)}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.c0{background:#E9EDFF;color:#2A44C8}.c1{background:#E1F6EC;color:#17935F}.c2{background:#FFF1D2;color:#B7791F}
+.c3{background:#FDE8E8;color:#D13F3F}.c4{background:#EDE7FB;color:#6B46C1}.c5{background:#E0F4F7;color:#0E7C8C}
+.bar{height:6px;background:var(--info-soft);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.bar.ok i{background:var(--ok)}
+.empty{text-align:center;padding:34px 16px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);margin-bottom:4px}
+.spin{width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;margin:40px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---- dasbor ---- */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.stat .l{color:var(--muted);font-size:12.5px;font-weight:600}
+.stat .v{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:4px 0 8px}
+.stat .nt{color:var(--muted);font-size:12px;margin-top:8px}
+.stat.hero{background:var(--accent);border-color:var(--accent);color:#fff}
+.stat.hero .l,.stat.hero .nt{color:rgba(255,255,255,.8)}
+.stat.hero .bar{background:rgba(255,255,255,.25)}.stat.hero .bar i{background:#fff}
+.row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .grow{flex:1;min-width:0}
+.row .grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .rt{text-align:right;flex:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+
+/* ---- presensi ---- */
+.tools{display:grid;grid-template-columns:2fr 1fr 2fr;gap:0 12px}
+.tally{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.stu{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin:0 0 10px;overflow:hidden}
+.stu .hd{display:flex;align-items:center;gap:12px;padding:12px 14px;flex-wrap:wrap}
+.stu .hd b{flex:1;min-width:120px}
+.segs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px}
+.seg{margin:0;position:relative}
+.seg input{position:absolute;opacity:0;width:0;height:0}
+.seg span{display:block;padding:6px 11px;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg input:focus-visible+span{outline:2px solid var(--accent)}
+.seg input:checked+span.hadir{background:var(--ok);color:#fff}
+.seg input:checked+span.izin{background:var(--accent);color:#fff}
+.seg input:checked+span.sakit{background:var(--warn);color:#fff}
+.seg input:checked+span.alfa{background:var(--bad);color:#fff}
+.det{padding:4px 14px 8px;background:#FAFBFD;border-top:1px solid var(--line)}
+.det .grid{padding-top:12px}
+.savebar{position:sticky;bottom:12px;z-index:5}
+.savebar .btn{width:100%;padding:13px;box-shadow:0 6px 18px rgba(63,94,251,.3)}
+
+/* ---- siswa & bayar ---- */
+details.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin:0 0 12px}
+details.panel summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:700;display:flex;align-items:center;gap:10px}
+details.panel summary::-webkit-details-marker{display:none}
+details.panel summary::before{content:'+';width:24px;height:24px;border-radius:8px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-weight:700}
+details.panel[open] summary::before{content:'–'}
+details.panel .in{padding:0 16px 16px}
+.search{margin:0 0 12px}
+.search input{margin:0;padding-left:14px}
+.pill{display:flex;gap:6px;margin:0 0 12px}
+.pill button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-weight:600;font-size:12.5px;color:var(--muted);cursor:pointer}
+.pill button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.inv{padding:14px 16px;border-top:1px solid var(--line)}
+.inv:first-child{border-top:0}
+.inv .top2{display:flex;align-items:center;gap:12px}
+.inv .amt{display:flex;justify-content:space-between;align-items:baseline;gap:4px 12px;flex-wrap:wrap;font-size:12.5px;margin:10px 0 6px}
+.inv .amt b{white-space:nowrap}
+.inv .pay{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-top:12px}
+.inv .pay label{margin:0}
+.inv .pay .btn{padding:10px 14px}
+
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;max-width:90%;z-index:50;font-weight:600}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#toast.err{background:var(--bad)}
+
+/* ---- HP ---- */
+@media (max-width:860px){
+  .side{inset:auto 0 0 0;width:auto;height:var(--nav-h);flex-direction:row;padding:6px 8px;border-right:0;border-top:1px solid var(--line);gap:0;justify-content:center}
+  .brand,.side .me{display:none}
+  #nav{flex-direction:row;width:100%;max-width:520px;justify-content:space-around}
+  #nav button{flex-direction:column;gap:2px;padding:6px 10px;font-size:11px;flex:1;align-items:center;text-align:center}
+  .wrap{margin-left:0}
+  .top{padding:16px 16px 4px}
+  .top h1{font-size:19px}
+  main{padding:10px 16px calc(var(--nav-h) + 28px)}
+  .tools{grid-template-columns:1fr}
+  .savebar{bottom:calc(var(--nav-h) + 10px)}
+  #toast{bottom:calc(var(--nav-h) + 16px)}
+  .inv .pay{grid-template-columns:1fr 1fr}
+  .inv .pay .btn{grid-column:1/3}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat .v{font-size:22px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="mark">B</div><div><b>Bimbel Kotagede</b><small>Sistem akademik</small></div></div>
+    <nav id="nav" aria-label="Menu utama"></nav>
+    <div class="me"><div class="av c0" id="av">?</div><div><b id="who">…</b><small id="role"></small></div></div>
+  </aside>
+  <div class="wrap">
+    <header class="top"><div><h1 id="ttl">Bimbel Kotagede</h1><p id="sub"></p></div></header>
+    <main id="view"><div class="spin"></div></main>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rp = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+const opt = (arr, v, l) => arr.map(x => `<option value="${esc(x[v])}">${esc(x[l])}</option>`).join('');
+const ini = n => String(n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+const hue = n => { let h = 0; String(n).split('').forEach(c => { h = (h * 31 + c.charCodeAt(0)) % 6; }); return 'c' + h; };
+const av = n => `<div class="av ${hue(n)}">${esc(ini(n))}</div>`;
+const SPIN = '<div class="spin"></div>';
+const empty = (t, s) => `<div class="card empty"><b>${esc(t)}</b>${esc(s || '')}</div>`;
+
+function call(fn, ...a) {
+  return new Promise((ok, no) => google.script.run.withSuccessHandler(ok).withFailureHandler(no)[fn](...a));
+}
+function toast(m, err) {
+  const t = $('#toast'); t.textContent = m; t.className = (err ? 'err ' : '') + 'show';
+  clearTimeout(toast.t); toast.t = setTimeout(() => { t.className = err ? 'err' : ''; }, 3800);
+}
+const errMsg = e => (e && e.message) || String(e);
+async function guard(btn, fn) {
+  const t = btn.textContent; btn.disabled = true; btn.textContent = 'Memproses…';
+  try { await fn(); } catch (e) { toast(errMsg(e), true); } finally { btn.disabled = false; btn.textContent = t; }
+}
+
+let U, M, TABS, TODAY;
+const TAB = {
+  dash:     { label: 'Dasbor',   sub: 'Ringkasan kondisi bimbel',            svg: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>' },
+  pantau:   { label: 'Pantau',   sub: 'Siswa yang perlu perhatian',          svg: '<path d="M12 3.5l9 15.5H3z"/><path d="M12 10v4M12 17v.01"/>' },
+  presensi: { label: 'Presensi', sub: 'Catat kehadiran dan log sesi',        svg: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>' },
+  siswa:    { label: 'Siswa',    sub: 'Data siswa dan pendaftaran',          svg: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.5 0 4.5 2 4.5 4.5"/>' },
+  bayar:    { label: 'Bayar',    sub: 'Tagihan dan pembayaran',              svg: '<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M7 15h3"/>' }
+};
+const tglPanjang = () => new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+async function go(tab) {
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
+  $('#ttl').textContent = TAB[tab].label;
+  $('#sub').textContent = tglPanjang() + ' · ' + TAB[tab].sub;
+  $('#view').innerHTML = SPIN;
+  window.scrollTo(0, 0);
+  try { await VIEWS[tab](); } catch (e) { $('#view').innerHTML = `<div class="card"><b class="bad">Tidak bisa memuat.</b><p class="mut">${esc(errMsg(e))}</p></div>`; }
+}
+function init(b) {
+  U = b.user; M = b.meta; TABS = b.tabs; TODAY = b.today;
+  $('#who').textContent = U.email; $('#role').textContent = 'Peran: ' + U.role;
+  $('#av').textContent = ini(U.email.split('@')[0]); $('#av').className = 'av ' + hue(U.email);
+  $('#nav').innerHTML = TABS.map(t => `<button data-t="${t}"><svg viewBox="0 0 24 24" aria-hidden="true">${TAB[t].svg}</svg><span>${TAB[t].label}</span></button>`).join('');
+  $('#nav').onclick = e => { const b = e.target.closest('button'); if (b) go(b.dataset.t); };
+  go(U.role === 'TUT' && TABS.includes('presensi') ? 'presensi' : TABS[0]);
+}
+
+/* ---- Dasbor ---- */
+async function vDash() {
+  const d = await call('getDashboard');
+  const groups = []; let g = null;
+  d.rows.forEach(r => {
+    if (r[1] === '' && r[2] === '') { g = { t: r[0], items: [] }; groups.push(g); }
+    else if (g) g.items.push({ l: r[0], v: r[1], n: r[2] });
+  });
+  let h = '';
+  groups.forEach((gr, gi) => {
+    h += `<div class="sec">${esc(gr.t.charAt(0) + gr.t.slice(1).toLowerCase())}</div><div class="stats">`;
+    gr.items.forEach((it, ii) => {
+      const pct = /%$/.test(it.v) ? Math.max(0, Math.min(100, parseFloat(String(it.v).replace(',', '.')) || 0)) : null;
+      const hero = gi === 0 && ii === 0;
+      h += `<div class="stat${hero ? ' hero' : ''}"><div class="l">${esc(it.l)}</div><div class="v">${esc(it.v === '' ? '–' : it.v)}</div>
+        ${pct !== null ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ''}
+        ${it.n ? `<div class="nt">${esc(it.n)}</div>` : ''}</div>`;
+    });
+    h += '</div>';
+  });
+  h += `<div class="sec">Kelas <span class="n">${d.kelas.length}</span></div><div class="card flush">`;
+  if (!d.kelas.length) h += '<div class="empty"><b>Belum ada kelas</b>Tambahkan di tab class pada Sheets.</div>';
+  d.kelas.forEach(k => {
+    const pct = parseInt(k.okupansi) || 0;
+    const low = pct < 50;
+    h += `<div class="row">${av(k.mapel)}<div class="grow"><b>${esc(k.mapel)} · Tier ${esc(k.tier)}</b>
+      <span class="mut">${esc(k.class_id)} · ${esc(k.tutor)}</span><div class="bar" style="margin-top:7px"><i style="width:${pct}%;${low ? 'background:var(--warn)' : ''}"></i></div></div>
+      <div class="rt"><b>${esc(k.terdaftar)}/${esc(k.kapasitas)}</b><div class="mut">${esc(k.okupansi)}</div></div></div>`;
+  });
+  $('#view').innerHTML = h + '</div>';
+}
+
+/* ---- Pantau ---- */
+async function vPantau() {
+  const rows = await call('getPantau');
+  let h = `<div class="sec">Perlu perhatian <span class="n">${rows.length}</span></div>`;
+  if (!rows.length) h += empty('Semua siswa aman', 'Tidak ada siswa yang memenuhi aturan PANTAU saat ini.');
+  else {
+    h += '<div class="card flush">';
+    rows.forEach(r => {
+      h += `<div class="row">${av(r.nama)}<div class="grow"><b>${esc(r.nama)}</b><span class="mut">${esc(r.student_id)}</span>
+        <div class="chips">${String(r.alasan).split(', ').filter(Boolean).map(a => `<span class="chip bad">${esc(a)}</span>`).join('')}</div></div>
+        <span class="chip warn">PANTAU</span></div>`;
+    });
+    h += '</div>';
+  }
+  $('#view').innerHTML = h;
+}
+
+/* ---- Presensi & log ---- */
+async function vPresensi() {
+  if (!M.classes.length) { $('#view').innerHTML = empty('Belum ada kelas', 'Akun ini belum terhubung ke kelas. Cek kolom tutor_id di tab user_account.'); return; }
+  $('#view').innerHTML = `<div class="card"><div class="tools">
+    <label>Kelas<select id="pc">${opt(M.classes, 'class_id', 'label')}</select></label>
+    <label>Tanggal<input type="date" id="pd" value="${TODAY}"></label>
+    <label>Ringkasan materi<input id="pm" maxlength="200" placeholder="Materi hari ini"></label></div></div>
+    <div id="ro">${SPIN}</div>`;
+  const STAT = [['hadir', 'Hadir'], ['izin', 'Izin'], ['sakit', 'Sakit'], ['alfa', 'Alfa']];
+  const tally = () => {
+    const c = { hadir: 0, izin: 0, sakit: 0, alfa: 0 };
+    document.querySelectorAll('#ro .stu').forEach(s => { c[s.querySelector('input[type=radio]:checked').value]++; });
+    const t = $('#tally'); if (t) t.innerHTML = `<span class="chip ok">Hadir ${c.hadir}</span><span class="chip">Izin ${c.izin}</span><span class="chip warn">Sakit ${c.sakit}</span><span class="chip bad">Alfa ${c.alfa}</span>`;
+  };
+  const load = async () => {
+    $('#ro').innerHTML = SPIN;
+    const r = await call('getRoster', $('#pc').value);
+    if (!r.length) { $('#ro').innerHTML = empty('Belum ada siswa aktif di kelas ini', 'Tambahkan lewat tab Siswa > Tambah kelas.'); return; }
+    $('#ro').innerHTML = `<div class="tally" id="tally"></div>` + r.map(s => `<div class="stu" data-sid="${esc(s.student_id)}">
+      <div class="hd">${av(s.nama)}<b>${esc(s.nama)}</b>
+        <div class="segs" role="radiogroup" aria-label="Status ${esc(s.nama)}">${STAT.map(([v, l]) =>
+          `<label class="seg"><input type="radio" name="st_${esc(s.student_id)}" value="${v}"${v === 'hadir' ? ' checked' : ''}><span class="${v}">${l}</span></label>`).join('')}</div></div>
+      <div class="det"><div class="grid">
+        <label>Exit ticket (0-3)<select class="x"><option>0</option><option>1</option><option selected>2</option><option>3</option></select></label>
+        <label>Kesalahan umum<select class="e"><option value="">Tidak ada</option>${opt(M.errors, 'code', 'label')}</select></label>
+        <label>PR selesai?<select class="p"><option value="Y">Ya</option><option value="N">Belum</option></select></label>
+        <label>Keterlibatan (1-3)<select class="k"><option>1</option><option selected>2</option><option>3</option></select></label>
+        <label style="grid-column:1/-1">Catatan<input class="c" maxlength="200" placeholder="Opsional"></label></div></div></div>`).join('')
+      + `<div class="savebar"><button class="btn" id="ps">Simpan sesi</button></div>`;
+    $('#ro').querySelectorAll('.stu').forEach(card => card.addEventListener('change', e => {
+      if (e.target.type === 'radio') card.querySelector('.det').style.display = e.target.value === 'hadir' ? '' : 'none';
+      tally();
+    }));
+    tally();
+    $('#ps').onclick = ev => guard(ev.currentTarget, async () => {
+      const rows = [...document.querySelectorAll('#ro .stu')].map(c => ({
+        student_id: c.dataset.sid, status: c.querySelector('input[type=radio]:checked').value, exit: c.querySelector('.x').value,
+        error: c.querySelector('.e').value, pr: c.querySelector('.p').value, libat: c.querySelector('.k').value,
+        catatan: c.querySelector('.c').value
+      }));
+      const r = await call('saveSession', { class_id: $('#pc').value, tanggal: $('#pd').value, ringkasan: $('#pm').value, rows });
+      toast(`Tersimpan ${r.session_id}: hadir ${r.hadir}/${r.total}`);
+      $('#pm').value = ''; await load();
+    });
+  };
+  $('#pc').onchange = load;
+  await load();
+}
+
+/* ---- Siswa ---- */
+async function vSiswa() {
+  const list = await call('getStudents');
+  const canEdit = ['PEM', 'ADM'].includes(U.role);
+  let h = '';
+  if (canEdit) h += `<details class="panel"><summary>Daftarkan siswa baru</summary><div class="in">
+    <label>Orang tua<select id="sp"><option value="">Orang tua baru</option>${opt(M.parents, 'parent_id', 'nama')}</select></label>
+    <div id="np" class="grid">
+      <label>Nama orang tua<input id="pn"></label><label>WhatsApp<input id="pw" inputmode="tel" placeholder="0812…"></label>
+      <label>Email (opsional)<input id="pe"></label><label>Relasi<select id="pr"><option>ibu</option><option>ayah</option><option>wali</option></select></label>
+    </div>
+    <div class="grid">
+      <label>Nama siswa<input id="sn"></label><label>Tanggal lahir<input type="date" id="sl"></label>
+      <label>Sekolah<input id="ss"></label><label>Kelas sekolah<input id="sk" type="number" min="1" max="12"></label>
+      <label>Sumber<select id="so"><option>Teman/ortu</option><option>Instagram</option><option>Sekolah</option><option>Spanduk</option><option>Lainnya</option></select></label>
+      <label>Status<select id="st"><option>aktif</option><option>lead</option></select></label>
+      <label>Kelas (opsional)<select id="ec"><option value="">Tanpa kelas</option>${opt(M.classes, 'class_id', 'label')}</select></label>
+      <label>Program<select id="ep">${opt(M.programs, 'program_id', 'label')}</select></label>
+    </div><button class="btn block" id="sa">Simpan siswa</button></div></details>
+    <details class="panel"><summary>Tambah kelas untuk siswa lama</summary><div class="in"><div class="grid">
+      <label>Siswa<select id="xs">${opt(M.students, 'student_id', 'nama')}</select></label>
+      <label>Kelas<select id="xc">${opt(M.classes, 'class_id', 'label')}</select></label>
+      <label>Program<select id="xp">${opt(M.programs, 'program_id', 'label')}</select></label></div>
+      <button class="btn block" id="xa">Tambah kelas</button></div></details>`;
+  h += `<div class="sec">Daftar siswa <span class="n">${list.length}</span></div>
+    <div class="search"><input id="q" type="search" placeholder="Cari nama siswa atau orang tua" aria-label="Cari siswa"></div><div class="card flush" id="sl2">`;
+  if (!list.length) h += '<div class="empty"><b>Belum ada siswa</b>Daftarkan siswa pertama lewat panel di atas.</div>';
+  list.forEach(s => {
+    h += `<div class="row" data-q="${esc((s.nama + ' ' + s.ortu).toLowerCase())}">${av(s.nama)}<div class="grow"><b>${esc(s.nama)}</b>
+      <span class="mut">${esc(s.sekolah)}${s.kelas_sekolah !== '' ? ' · kelas ' + esc(s.kelas_sekolah) : ''}</span></div>
+      <div class="rt"><span class="chip ${esc(s.status)}">${esc(s.status)}</span><div class="mut">${esc(s.ortu)}</div></div></div>`;
+  });
+  $('#view').innerHTML = h + '</div>';
+  $('#q').oninput = e => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#sl2 .row').forEach(r => { r.style.display = r.dataset.q.includes(q) ? '' : 'none'; });
+  };
+  if (!canEdit) return;
+  $('#sp').onchange = () => { $('#np').style.display = $('#sp').value ? 'none' : ''; };
+  $('#sa').onclick = ev => guard(ev.currentTarget, async () => {
+    const enroll = $('#ec').value ? [{ class_id: $('#ec').value, program_id: $('#ep').value }] : [];
+    const r = await call('addStudent', {
+      parent_id: $('#sp').value,
+      parent: { nama: $('#pn').value, whatsapp: $('#pw').value, email: $('#pe').value, relasi: $('#pr').value },
+      student: { nama: $('#sn').value, tgl_lahir: $('#sl').value, sekolah: $('#ss').value, kelas_sekolah: $('#sk').value, sumber: $('#so').value, status: $('#st').value },
+      enroll
+    });
+    toast('Tersimpan ' + r.student_id + r.note);
+    M = await call('getMeta'); await vSiswa();
+  });
+  $('#xa').onclick = ev => guard(ev.currentTarget, async () => {
+    const r = await call('addEnrollment', $('#xs').value, $('#xc').value, $('#xp').value);
+    toast('Tersimpan ' + r.enrollment_id); M = await call('getMeta'); await vSiswa();
+  });
+}
+
+/* ---- Bayar ---- */
+async function vBayar() {
+  const inv = await call('getInvoices', true);
+  const sisa = inv.reduce((a, i) => a + i.sisa, 0), telat = inv.filter(i => i.hari_telat > 0).length;
+  let h = `<div class="stats">
+    <div class="stat hero"><div class="l">Piutang berjalan</div><div class="v">${rp(sisa)}</div><div class="nt">${inv.length} tagihan belum lunas</div></div>
+    <div class="stat"><div class="l">Lewat jatuh tempo</div><div class="v">${telat}</div><div class="nt">tagihan telat</div></div></div>
+    <div style="height:14px"></div>
+    <details class="panel"><summary>Buat tagihan bulanan</summary><div class="in"><div class="grid">
+      <label>Periode<input type="month" id="gp" value="${TODAY.slice(0, 7)}"></label>
+      <label>Jatuh tempo<input type="date" id="gj" value="${TODAY.slice(0, 7)}-10"></label></div>
+      <button class="btn block" id="gb">Buat tagihan</button>
+      <p class="mut">Berlaku untuk semua enrollment aktif. Yang sudah punya tagihan periode itu dilewati.</p></div></details>
+    <div class="sec">Belum lunas <span class="n">${inv.length}</span></div>
+    <div class="pill"><button class="on" data-f="all">Semua</button><button data-f="late">Telat</button></div><div class="card flush" id="il">`;
+  if (!inv.length) h += '<div class="empty"><b>Semua tagihan lunas</b>Buat tagihan bulan berikutnya saat waktunya.</div>';
+  inv.forEach(i => {
+    const pct = i.jumlah ? Math.round(i.dibayar / i.jumlah * 100) : 0;
+    h += `<div class="inv" data-inv="${esc(i.invoice_id)}" data-late="${i.hari_telat > 0 ? 1 : 0}">
+      <div class="top2">${av(i.siswa)}<div class="grow" style="flex:1;min-width:0"><b>${esc(i.siswa)}</b><div class="mut">${esc(i.invoice_id)} · ${esc(i.periode)} · ${esc(i.kelas)}</div></div>
+      <div style="text-align:right"><span class="chip ${esc(i.status)}">${esc(i.status)}</span>${i.hari_telat > 0 ? `<div class="mut bad">Telat ${i.hari_telat} hari</div>` : ''}</div></div>
+      <div class="amt"><span class="mut">Terbayar ${rp(i.dibayar)} dari ${rp(i.jumlah)}</span><b>Sisa ${rp(i.sisa)}</b></div>
+      <div class="bar ok"><i style="width:${pct}%"></i></div>
+      <div class="pay"><label>Jumlah<input type="number" class="pj" min="1" value="${i.sisa}"></label>
+      <label>Metode<select class="pm"><option>QRIS</option><option>Transfer</option><option>Tunai</option></select></label>
+      <button class="btn ok pb">Catat bayar</button></div></div>`;
+  });
+  $('#view').innerHTML = h + '</div>';
+  $('#gb').onclick = ev => guard(ev.currentTarget, async () => {
+    const r = await call('generateInvoices', $('#gp').value, $('#gj').value);
+    toast(r.dibuat + ' tagihan dibuat'); await vBayar();
+  });
+  document.querySelectorAll('.pill button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.pill button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('#il .inv').forEach(c => { c.style.display = (b.dataset.f === 'all' || c.dataset.late === '1') ? '' : 'none'; });
+  });
+  document.querySelectorAll('.pb').forEach(b => b.onclick = ev => guard(ev.currentTarget, async () => {
+    const c = ev.currentTarget.closest('.inv');
+    const r = await call('addPayment', { invoice_id: c.dataset.inv, jumlah: c.querySelector('.pj').value, metode: c.querySelector('.pm').value, tgl: TODAY });
+    toast('Tercatat ' + r.payment_id + ' · sisa ' + rp(r.sisa_baru)); await vBayar();
+  }));
+}
+
+const VIEWS = { dash: vDash, pantau: vPantau, presensi: vPresensi, siswa: vSiswa, bayar: vBayar };
+call('boot').then(init).catch(e => { $('#view').innerHTML = `<div class="card"><b class="bad">Tidak bisa masuk.</b><p class="mut">${esc(errMsg(e))}</p></div>`; });
+</script>
+</body>
+</html>

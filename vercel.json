@@ -1,0 +1,10 @@
+{
+  "outputDirectory": "public",
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "https://script.google.com/macros/s/AKfycbwlr8ycykrXnRsPJHU9TVBhY9meNq3wdCdtROzBFcv_BxWun7GfyovyqMTOEh3aJhFN/exec",
+      "permanent": false
+    }
+  ]
+}
